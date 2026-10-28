@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarik Tambang Jaringan | 2 Tim</title>
+<style>
+  :root{
+    --left:#22c55e;
+    --right:#ef4444;
+    --dark:#0f172a;
+    --panel:#ffffff;
+  }
+
+  *{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+  }
+
+  body{
+    min-height:100vh;
+    color:#fff;
+    padding:16px;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(34,197,94,.14), transparent 35%),
+      radial-gradient(circle at 85% 90%, rgba(239,68,68,.14), transparent 35%),
+      linear-gradient(160deg, #0f172a, #1e293b);
+  }
+
+  .app{
+    max-width:1000px;
+    margin:0 auto;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:16px;
+  }
+
+  h1{
+    font-size:clamp(1.4rem, 4vw, 2.3rem);
+    letter-spacing:.5px;
+  }
+
+  .subtitle{
+    margin-top:6px;
+    font-size:.95rem;
+    opacity:.9;
+  }
+
+  .badge{
+    display:inline-block;
+    margin-top:10px;
+    padding:5px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.25);
+    font-size:.85rem;
+  }
+
+  .scoreboard{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:12px 16px;
+    border-radius:16px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.16);
+    margin-bottom:14px;
+  }
+
+  .team{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:800;
+    padding:8px 12px;
+    border-radius:14px;
+    transition:.25s;
+  }
+
+  .team.left{
+    color:var(--left);
+  }
+
+  .team.right{
+    color:var(--right);
+  }
+
+  .team.active{
+    box-shadow:0 0 0 3px currentColor inset;
+    background:rgba(255,255,255,.06);
+    transform:scale(1.02);
+  }
+
+  .team .icon{
+    font-size:1.8rem;
+  }
+
+  .score{
+    font-size:1.5rem;
+    min-width:2ch;
+    text-align:center;
+  }
+
+  .vs{
+    font-weight:900;
+    opacity:.85;
+  }
+
+  .turn-info{
+    display:flex;
+    justify-content:center;
+    margin-bottom:12px;
+  }
+
+  .turn-badge{
+    padding:8px 18px;
+    border-radius:999px;
+    font-weight:900;
+    border:2px solid transparent;
+  }
+
+  .turn-badge.left{
+    background:rgba(34,197,94,.14);
+    color:#86efac;
+    border-color:var(--left);
+  }
+
+  .turn-badge.right{
+    background:rgba(239,68,68,.14);
+    color:#fca5a5;
+    border-color:var(--right);
+  }
+
+  .arena{
+    position:relative;
+    height:210px;
+    border-radius:18px;
+    overflow:hidden;
+    border:2px solid rgba(255,255,255,.25);
+    background:linear-gradient(#7dd3fc 0 56%, #16a34a 56% 100%);
+    box-shadow:0 12px 30px rgba(0,0,0,.28);
+  }
+
+  .arena::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(
+      90deg,
+      transparent 0 70px,
+      rgba(255,255,255,.05) 70px 71px
+    );
+    pointer-events:none;
+  }
+
+  .zone{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:18%;
+    opacity:.28;
+  }
+
+  .zone.left{
+    left:0;
+    background:linear-gradient(90deg, var(--left), transparent);
+  }
+
+  .zone.right{
+    right:0;
+    background:linear-gradient(-90deg, var(--right), transparent);
+  }
+
+  .center-line{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:3px;
+    background:rgba(255,255,255,.95);
+    transform:translateX(-50%);
+    z-index:2;
+  }
+
+  .rope{
+    position:absolute;
+    left:7%;
+    right:7%;
+    top:58%;
+    height:15px;
+    border-radius:9px;
+    background:repeating-linear-gradient(
+      45deg,
+      #92400e 0 12px,
+      #b45309 12px 24px
+    );
+    box-shadow:0 3px 8px rgba(0,0,0,.35);
+    z-index:3;
+  }
+
+  .knot{
+    position:absolute;
+    top:58%;
+    left:50%;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:#f59e0b;
+    border:4px solid #fff;
+    transform:translate(-50%, -28%);
+    transition:left .7s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 0 14px rgba(245,158,11,.95);
+    z-index:5;
+  }
+
+  .flag{
+    position:absolute;
+    top:14px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:1.5rem;
+    transition:left .7s cubic-bezier(.34,1.56,.64,1);
+    z-index:6;
+  }
+
+  .char{
+    position:absolute;
+    top:39%;
+    font-size:2.8rem;
+    z-index:4;
+    transition:.2s;
+  }
+
+  .char.left{
+    left:4%;
+  }
+
+  .char.right{
+    right:4%;
+  }
+
+  .arena.pull-left .char.left{
+    animation:pullLeft .45s ease;
+  }
+
+  .arena.pull-right .char.right{
+    animation:pullRight .45s ease;
+  }
+
+  @keyframes pullLeft{
+    50%{ transform:translateX(-10px) rotate(-6deg); }
+  }
+
+  @keyframes pullRight{
+    50%{ transform:translateX(10px) rotate(6deg); }
+  }
+
+  .meter{
+    height:12px;
+    border-radius:999px;
+    overflow:hidden;
+    background:rgba(255,255,255,.15);
+    margin:12px 0 16px;
+  }
+
+  .meter-fill{
+    height:100%;
+    width:50%;
+    background:linear-gradient(90deg, var(--left), #f59e0b, var(--right));
+    transition:width .7s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .panel{
+    background:var(--panel);
+    color:#0f172a;
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+  }
+
+  .panel-top{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:14px;
+  }
+
+  .topic-badge{
+    display:inline-block;
+    padding:7px 12px;
+    border-radius:999px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    border:2px solid #bfdbfe;
+    font-weight:800;
+    font-size:.92rem;
+  }
+
+  .question{
+    font-size:1.12rem;
+    font-weight:700;
+    line-height:1.55;
+    margin-bottom:16px;
+  }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .option{
+    border:3px solid #c7d2fe;
+    background:#eef2ff;
+    color:#111827;
+    padding:13px 14px;
+    border-radius:14px;
+    cursor:pointer;
+    text-align:left;
+    font-size:.98rem;
+    font-weight:700;
+    transition:.15s;
+  }
+
+  .option:hover:not(:disabled){
+    transform:translateY(-2px);
+    background:#e0e7ff;
+  }
+
+  .option:disabled{
+    cursor:not-allowed;
+  }
+
+  .option.correct{
+    background:var(--left) !important;
+    border-color:#15803d !important;
+    color:#fff;
+  }
+
+  .option.wrong{
+    background:var(--right) !important;
+    border-color:#b91c1c !important;
+    color:#fff;
+  }
+
+  .feedback{
+    margin-top:14px;
+    padding:12px;
+    border-radius:12px;
+    font-weight:900;
+    text-align:center;
+    min-height:20px;
+  }
+
+  .feedback.ok{
+    background:#dcfce7;
+    color:#166534;
+  }
+
+  .feedback.no{
+    background:#fee2e2;
+    color:#991b1b;
+  }
+
+  .next{
+    display:block;
+    margin:16px auto 0;
+    border:none;
+    color:#fff;
+    background:linear-gradient(135deg, #2563eb, #1d4ed8);
+    padding:12px 30px;
+    border-radius:999px;
+    font-size:1rem;
+    font-weight:900;
+    cursor:pointer;
+  }
+
+  .next:hover{
+    transform:scale(1.05);
+  }
+
+  .hint{
+    margin-top:10px;
+    text-align:center;
+    font-size:.8rem;
+    color:#64748b;
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,.82);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:100;
+  }
+
+  .overlay.show{
+    display:flex;
+  }
+
+  .result{
+    width:min(100%, 560px);
+    background:#fff;
+    color:#0f172a;
+    border-radius:22px;
+    padding:28px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.45);
+  }
+
+  .result .big{
+    font-size:4rem;
+    line-height:1;
+    margin-bottom:10px;
+  }
+
+  .result h2{
+    font-size:1.8rem;
+    margin-bottom:14px;
+  }
+
+  .result.left h2{
+    color:#15803d;
+  }
+
+  .result.right h2{
+    color:#b91c1c;
+  }
+
+  .result.draw h2{
+    color:#b45309;
+  }
+
+  .stats{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin:16px 0;
+  }
+
+  .stat-card{
+    background:#f8fafc;
+    border:2px solid #e2e8f0;
+    border-radius:16px;
+    padding:12px 16px;
+    min-width:140px;
+    font-weight:900;
+  }
+
+  .stat-card small{
+    display:block;
+    margin-bottom:5px;
+    font-size:.8rem;
+    color:#64748b;
+  }
+
+  .stat-card.left{
+    color:#15803d;
+  }
+
+  .stat-card.right{
+    color:#b91c1c;
+  }
+
+  .msg{
+    color:#334155;
+    line-height:1.6;
+    margin-top:8px;
+  }
+
+  .again{
+    margin-top:18px;
+    border:none;
+    color:#fff;
+    background:linear-gradient(135deg, #16a34a, #22c55e);
+    padding:13px 30px;
+    border-radius:999px;
+    font-size:1rem;
+    font-weight:900;
+    cursor:pointer;
+  }
+
+  .again:hover{
+    transform:scale(1.05);
+  }
+
+  .confetti{
+    position:fixed;
+    top:-25px;
+    font-size:1.2rem;
+    z-index:200;
+    pointer-events:none;
+    animation:fall linear forwards;
+  }
+
+  @keyframes fall{
+    to{
+      transform:translateY(110vh) rotate(720deg);
+    }
+  }
+
+  @media (max-width:640px){
+    .options{
+      grid-template-columns:1fr;
+    }
+
+    .arena{
+      height:180px;
+    }
+
+    .char{
+      font-size:2.1rem;
+    }
+
+    .team{
+      padding:6px 8px;
+      gap:6px;
+    }
+
+    .team .icon{
+      font-size:1.3rem;
+    }
+
+    .score{
+      font-size:1.2rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🪢 Tarik Tambang Jaringan 🪢</h1>
+      <div class="subtitle">Materi: Pengenalan Jaringan</div>
+      <span class="badge">5 Soal per Tim • Topik Sama per Ronde</span>
+    </header>
+
+    <section class="scoreboard">
+      <div class="team left" id="teamLeft">
+        <span class="icon">🧑‍🎓</span>
+        <span id="nameLeft">Tim Kiri</span>
+        <span class="score" id="scoreLeft">0</span>
+      </div>
+
+      <div class="vs">VS</div>
+
+      <div class="team right" id="teamRight">
+        <span class="score" id="scoreRight">0</span>
+        <span id="nameRight">Tim Kanan</span>
+        <span class="icon">🧑‍💻</span>
+      </div>
+    </section>
+
+    <div class="turn-info">
+      <div class="turn-badge left" id="turnBadge">Giliran: Tim Kiri</div>
+    </div>
+
+    <section class="arena" id="arena">
+      <div class="zone left"></div>
+      <div class="zone right"></div>
+      <div class="center-line"></div>
+      <div class="rope"></div>
+      <div class="knot" id="knot"></div>
+      <div class="flag" id="flag">🚩</div>
+      <div class="char left">🧑‍🎓🧑‍🎓</div>
+      <div class="char right">🧑‍💻🧑‍💻</div>
+    </section>
+
+    <div class="meter">
+      <div class="meter-fill" id="meterFill"></div>
+    </div>
+
+    <section class="panel">
+      <div class="panel-top">
+        <span class="topic-badge" id="topicBadge">Ronde 1/5 • Topik</span>
+        <span class="topic-badge" id="roundBadge">Soal 1/10</span>
+      </div>
+
+      <div class="question" id="questionText">Memuat soal...</div>
+      <div class="options" id="options"></div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <button class="next" id="btnNext" hidden>Lanjut ➡️</button>
+      <div class="hint">Bisa menekan tombol keyboard 1, 2, 3, atau 4 untuk menjawab.</div>
+    </section>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="result draw" id="resultCard">
+      <div class="big" id="resultEmoji">🏆</div>
+      <h2 id="resultTitle">Hasil Akhir</h2>
+
+      <div class="stats">
+        <div class="stat-card left">
+          <small id="statLeftName">Tim Kiri</small>
+          <span id="statLeftScore">0</span>/5 benar
+        </div>
+
+        <div class="stat-card right">
+          <small id="statRightName">Tim Kanan</small>
+          <span id="statRightScore">0</span>/5 benar
+        </div>
+      </div>
+
+      <p class="msg" id="resultMessage">Pemenang ditentukan oleh posisi akhir tali.</p>
+
+      <button class="again" onclick="restartGame()">🔄 Main Lagi</button>
+    </div>
+  </div>
+
+<script>
+  /* ==============================
+     KONFIGURASI NAMA TIM
+     Bisa diganti sesuai kelas, misalnya:
+     "Tim Merah", "Tim Biru", "Tim A", "Tim B"
+  ============================== */
+  const LEFT_NAME = "Tim Kiri";
+  const RIGHT_NAME = "Tim Kanan";
+
+  /* ==============================
+     DATA SOAL
+     5 ronde, tiap ronde punya soal untuk tim kiri dan tim kanan
+     dengan topik yang sama.
+  ============================== */
+  const ROUNDS = [
+    {
+      topic: "Pengertian Jaringan Komputer",
+      left: {
+        q: "Apa yang dimaksud dengan jaringan komputer?",
+        o: [
+          "Komputer yang berdiri sendiri",
+          "Dua atau lebih komputer yang saling terhubung",
+          "Komputer yang hanya bisa mengetik",
+          "Aplikasi untuk menggambar"
+        ],
+        a: 1
+      },
+      right: {
+        q: "Tujuan utama dari jaringan komputer adalah...",
+        o: [
+          "Membuat komputer lebih mahal",
+          "Berbagi data dan sumber daya",
+          "Menghapus semua file",
+          "Mematikan listrik secara otomatis"
+        ],
+        a: 1
+      }
+    },
+    {
+      topic: "Perangkat Jaringan",
+      left: {
+        q: "Perangkat yang menghubungkan banyak komputer dalam satu jaringan lokal adalah...",
+        o: [
+          "Switch",
+          "Printer",
+          "Keyboard",
+          "Mouse"
+        ],
+        a: 0
+      },
+      right: {
+        q: "Perangkat yang berfungsi meneruskan paket data antar jaringan yang berbeda adalah...",
+        o: [
+          "Monitor",
+          "Router",
+          "Speaker",
+          "Flashdisk"
+        ],
+        a: 1
+      }
+    },
+    {
+      topic: "Media Transmisi Kabel",
+      left: {
+        q: "Kabel jaringan yang terdiri dari pasangan kawat tembaga berpilin adalah...",
+        o: [
+          "Fiber optic",
+          "Twisted pair",
+          "Coaxial",
+          "HDMI"
+        ],
+        a: 1
+      },
+      right: {
+        q: "Konektor yang umum digunakan pada kabel UTP adalah...",
+        o: [
+          "RJ-45",
+          "USB-C",
+          "VGA",
+          "BNC"
+        ],
+        a: 0
+      }
+    },
+    {
+      topic: "Jaringan Nirkabel",
+      left: {
+        q: "Standar teknologi yang digunakan untuk jaringan Wi-Fi adalah...",
+        o: [
+          "IEEE 802.11",
+          "IEEE 802.3",
+          "IEEE 802.15",
+          "IEEE 802.5"
+        ],
+        a: 0
+      },
+      right: {
+        q: "Media transmisi utama pada jaringan nirkabel adalah...",
+        o: [
+          "Kabel tembaga",
+          "Gelombang radio",
+          "Kabel fiber optic",
+          "Kabel listrik"
+        ],
+        a: 1
+      }
+    },
+    {
+      topic: "Alamat IP dan Internet",
+      left: {
+        q: "Alamat unik yang dimiliki setiap perangkat pada jaringan IP disebut...",
+        o: [
+          "MAC address",
+          "IP address",
+          "Email address",
+          "Web address"
+        ],
+        a: 1
+      },
+      right: {
+        q: "Layanan yang menerjemahkan nama domain menjadi alamat IP adalah...",
+        o: [
+          "DNS",
+          "FTP",
+          "HTTP",
+          "SMTP"
+        ],
+        a: 0
+      }
+    }
+  ];
+
+  const TOTAL_TURNS = ROUNDS.length * 2; // 5 kiri + 5 kanan = 10 giliran
+
+  let turn = 0;
+  let leftCorrect = 0;
+  let rightCorrect = 0;
+  let rope = 0; // negatif = ke kiri, positif = ke kanan
+  let answered = false;
+
+  const el = id => document.getElementById(id);
+
+  // Pasang nama tim
+  el("nameLeft").textContent = LEFT_NAME;
+  el("nameRight").textContent = RIGHT_NAME;
+  el("statLeftName").textContent = LEFT_NAME;
+  el("statRightName").textContent = RIGHT_NAME;
+
+  function getCurrentTurnData() {
+    const roundIndex = Math.floor(turn / 2);
+    const isLeftTurn = turn % 2 === 0;
+    const round = ROUNDS[roundIndex];
+    const question = isLeftTurn ? round.left : round.right;
+    const teamName = isLeftTurn ? LEFT_NAME : RIGHT_NAME;
+
+    return {
+      roundIndex,
+      isLeftTurn,
+      round,
+      question,
+      teamName
+    };
+  }
+
+  function loadTurn() {
+    answered = false;
+
+    const data = getCurrentTurnData();
+
+    el("topicBadge").textContent =
+      `Ronde ${data.roundIndex + 1}/${ROUNDS.length} • ${data.round.topic}`;
+
+    el("roundBadge").textContent =
+      `Giliran ke-${turn + 1}/${TOTAL_TURNS}`;
+
+    const turnBadge = el("turnBadge");
+    turnBadge.textContent = `Giliran: ${data.teamName}`;
+    turnBadge.className = "turn-badge " + (data.isLeftTurn ? "left" : "right");
+
+    el("teamLeft").classList.toggle("active", data.isLeftTurn);
+    el("teamRight").classList.toggle("active", !data.isLeftTurn);
+
+    el("questionText").textContent = data.question.q;
+
+    const optionBox = el("options");
+    optionBox.innerHTML = "";
+
+    data.question.o.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.className = "option";
+      btn.textContent = String.fromCharCode(65 + i) + ". " + opt;
+      btn.onclick = () => answer(i);
+      optionBox.appendChild(btn);
+    });
+
+    el("feedback").textContent = "";
+    el("feedback").className = "feedback";
+
+    const btnNext = el("btnNext");
+    btnNext.hidden = true;
+    btnNext.textContent = turn === TOTAL_TURNS - 1
+      ? "🏁 Lihat Hasil"
+      : "Lanjut ➡️";
+  }
+
+  function answer(selectedIndex) {
+    if (answered) return;
+    answered = true;
+
+    const data = getCurrentTurnData();
+    const isCorrect = selectedIndex === data.question.a;
+    const buttons = [...el("options").children];
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (isCorrect) {
+      buttons[selectedIndex].classList.add("correct");
+
+      if (data.isLeftTurn) {
+        leftCorrect++;
+        rope--; // tim kiri benar -> tali ke kiri
+        el("feedback").textContent =
+          `✅ ${data.teamName} benar! Tali bergerak ke kiri.`;
+      } else {
+        rightCorrect++;
+        rope++; // tim kanan benar -> tali ke kanan
+        el("feedback").textContent =
+          `✅ ${data.teamName} benar! Tali bergerak ke kanan.`;
+      }
+
+      el("feedback").className = "feedback ok";
+      playCorrectSound();
+    } else {
+      buttons[selectedIndex].classList.add("wrong");
+      buttons[data.question.a].classList.add("correct");
+
+      if (data.isLeftTurn) {
+        rope++; // tim kiri salah -> tali ke kanan
+        el("feedback").textContent =
+          `❌ ${data.teamName} salah! Tali bergerak ke kanan.`;
+      } else {
+        rope--; // tim kanan salah -> tali ke kiri
+        el("feedback").textContent =
+          `❌ ${data.teamName} salah! Tali bergerak ke kiri.`;
+      }
+
+      el("feedback").className = "feedback no";
+      playWrongSound();
+    }
+
+    el("scoreLeft").textContent = leftCorrect;
+    el("scoreRight").textContent = rightCorrect;
+
+    updateRope(data.isLeftTurn ? isCorrect : !isCorrect);
+
+    el("btnNext").hidden = false;
+  }
+
+  function updateRope(moveToLeft) {
+    // rope minimum -10, maksimum +10
+    const position = 50 + rope * 4;
+
+    el("knot").style.left = position + "%";
+    el("flag").style.left = position + "%";
+    el("meterFill").style.width = position + "%";
+
+    const arena = el("arena");
+    arena.classList.remove("pull-left", "pull-right");
+    void arena.offsetWidth;
+
+    if (moveToLeft) {
+      arena.classList.add("pull-left");
+    } else {
+      arena.classList.add("pull-right");
+    }
+  }
+
+  el("btnNext").addEventListener("click", () => {
+    turn++;
+
+    if (turn >= TOTAL_TURNS) {
+      finishGame();
+    } else {
+      loadTurn();
+    }
+  });
+
+  function finishGame() {
+    const overlay = el("overlay");
+    const resultCard = el("resultCard");
+
+    el("statLeftScore").textContent = leftCorrect;
+    el("statRightScore").textContent = rightCorrect;
+
+    let resultClass = "draw";
+    let emoji = "🤝";
+    let title = "Seri!";
+    let message = "";
+
+    if (rope < 0) {
+      resultClass = "left";
+      emoji = "🏆";
+      title = `${LEFT_NAME} Menang!`;
+
+      if (leftCorrect === 5 && rightCorrect < 5) {
+        message =
+          `${LEFT_NAME} menjawab semua soal dengan benar dan berhasil menarik tali ke sisi kiri!`;
+      } else {
+        message =
+          `${LEFT_NAME} lebih banyak menjawab benar sehingga tali berakhir di sisi kiri.`;
+      }
+
+      celebrate(80);
+      playWinSound();
+    } else if (rope > 0) {
+      resultClass = "right";
+      emoji = "🏆";
+      title = `${RIGHT_NAME} Menang!`;
+
+      if (rightCorrect === 5 && leftCorrect < 5) {
+        message =
+          `${RIGHT_NAME} menjawab semua soal dengan benar dan berhasil menarik tali ke sisi kanan!`;
+      } else {
+        message =
+          `${RIGHT_NAME} lebih banyak menjawab benar sehingga tali berakhir di sisi kanan.`;
+      }
+
+      celebrate(80);
+      playWinSound();
+    } else {
+      resultClass = "draw";
+      emoji = "🤝";
+
+      if (leftCorrect === 5 && rightCorrect === 5) {
+        title = "Seri Sempurna!";
+        message =
+          "Kedua tim menjawab semua soal dengan benar. Kekuatan sama kuat, tali tetap di tengah!";
+      } else {
+        title = "Seri!";
+        message =
+          "Kedua tim sama kuat. Tali berakhir tepat di tengah. Coba lagi untuk menentukan pemenang!";
+      }
+    }
+
+    resultCard.className = "result " + resultClass;
+    el("resultEmoji").textContent = emoji;
+    el("resultTitle").textContent = title;
+    el("resultMessage").textContent = message;
+
+    overlay.classList.add("show");
+  }
+
+  function restartGame() {
+    turn = 0;
+    leftCorrect = 0;
+    rightCorrect = 0;
+    rope = 0;
+    answered = false;
+
+    el("scoreLeft").textContent = "0";
+    el("scoreRight").textContent = "0";
+    el("overlay").classList.remove("show");
+
+    el("knot").style.left = "50%";
+    el("flag").style.left = "50%";
+    el("meterFill").style.width = "50%";
+
+    loadTurn();
+  }
+
+  function celebrate(amount) {
+    const icons = ["🎉", "✨", "🎊", "⭐", "🏆"];
+
+    for (let i = 0; i < amount; i++) {
+      const span = document.createElement("span");
+      span.className = "confetti";
+      span.textContent = icons[Math.floor(Math.random() * icons.length)];
+      span.style.left = Math.random() * 100 + "vw";
+      span.style.animationDuration = (2 + Math.random() * 2.5) + "s";
+      document.body.appendChild(span);
+
+      setTimeout(() => span.remove(), 5000);
+    }
+  }
+
+  /* ==============================
+     EFEK SUARA SEDERHANA
+     Menggunakan WebAudio, tanpa file suara eksternal.
+  ============================== */
+  let audioCtx = null;
+
+  function getAudioContext() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, duration, type = "sine", delay = 0) {
+    try {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + duration);
+    } catch (e) {
+      // abaikan jika browser tidak mendukung
+    }
+  }
+
+  function playCorrectSound() {
+    playTone(660, 0.12, "sine", 0);
+    playTone(880, 0.18, "sine", 0.12);
+  }
+
+  function playWrongSound() {
+    playTone(220, 0.18, "sawtooth", 0);
+    playTone(160, 0.24, "sawtooth", 0.15);
+  }
+
+  function playWinSound() {
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      playTone(freq, 0.25, "triangle", i * 0.18);
+    });
+  }
+
+  /* ==============================
+     DUKUNGAN KEYBOARD
+     Tekan 1, 2, 3, 4 untuk menjawab.
+     Tekan Enter untuk lanjut.
+  ============================== */
+  document.addEventListener("keydown", (e) => {
+    const overlayShown = el("overlay").classList.contains("show");
+
+    if (overlayShown) return;
+
+    if (!answered && ["1", "2", "3", "4"].includes(e.key)) {
+      answer(Number(e.key) - 1);
+    } else if (e.key === "Enter" && !el("btnNext").hidden) {
+      el("btnNext").click();
+    }
+  });
+
+  // Mulai game
+  loadTurn();
+</script>
+</body>
+</html>
