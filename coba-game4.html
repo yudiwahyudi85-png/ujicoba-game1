@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarik Tambang Jaringan · Mode Cepat · XI TKJ</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+  body{
+    min-height:100vh;padding:14px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#ddefe0 0%,#eaf6ee 50%,#dff0e4 100%);
+  }
+  .card{
+    width:min(1240px,100%);background:#fff;border-radius:18px;overflow:hidden;
+    box-shadow:0 14px 40px rgba(30,60,50,.18);border:1px solid #e3ece6;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fbfdff;
+    border-bottom:4px solid #f5b301;
+  }
+  header h1{font-size:clamp(.95rem,2.2vw,1.25rem);color:#17233b;font-weight:800;flex:1}
+  .hicons{display:flex;gap:8px}
+  .ibtn{
+    width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .ibtn:hover{transform:scale(1.08)}
+  .ibtn.green{background:#0fa36b}
+  .ibtn.green.off{background:#9fb3ac}
+  .ibtn.light{background:#e8f1f7;color:#5b6b7a}
+  .ibtn svg{width:22px;height:22px;fill:#fff}
+  .ibtn.light svg{fill:none;stroke:#5b6b7a;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .ibtn.light svg.fill{fill:#5b6b7a;stroke:none}
+
+  /* ---------- AREA TALI ---------- */
+  .rope-area{position:relative;height:120px;background:#f4f8fb;overflow:hidden}
+  .rope{
+    position:absolute;left:52px;right:52px;top:50%;height:9px;transform:translateY(-50%);
+    background:repeating-linear-gradient(90deg,#8a5a2b 0 20px,transparent 20px 32px);
+    border-radius:6px;
+  }
+  .center-mark{position:absolute;left:50%;top:14px;bottom:14px;width:3px;background:#aeb9c2;transform:translateX(-50%)}
+  .knot{
+    position:absolute;top:50%;left:50%;width:46px;height:46px;border-radius:50%;
+    background:#f5b301;border:5px solid #fff;transform:translate(-50%,-50%);
+    box-shadow:0 4px 10px rgba(0,0,0,.25);z-index:5;
+    transition:left .8s cubic-bezier(.34,1.56,.64,1);
+  }
+  .char{position:absolute;top:50%;transform:translateY(-52%);font-size:56px;z-index:4;user-select:none}
+  .char.left{left:6px}
+  .char.right{right:6px;transform:translateY(-52%) scaleX(-1)}
+  .rope-area.pull-l .char.left{animation:pl .5s}
+  .rope-area.pull-r .char.right{animation:pr .5s}
+  @keyframes pl{50%{transform:translateY(-52%) translateX(-12px) rotate(-6deg)}}
+  @keyframes pr{50%{transform:translateY(-52%) scaleX(-1) translateX(-12px) rotate(-6deg)}}
+  .round-pill{
+    position:absolute;left:50%;bottom:6px;transform:translateX(-50%);
+    background:#fff;border-radius:999px;padding:3px 14px;font-size:.8rem;font-weight:800;
+    color:#41546b;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:6;white-space:nowrap;
+  }
+
+  /* ---------- PANEL TIM ---------- */
+  .panels{display:grid;grid-template-columns:1fr 1fr}
+  .panel{padding:18px 22px 26px;min-height:340px}
+  .panel.left{background:#fbe4ea}
+  .panel.right{background:#d9edf9;border-left:3px solid #fff}
+  .panel h2{text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:14px;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+  .panel.left h2{color:#d61f4c}
+  .panel.right h2{color:#0a7fb5}
+  .pill{font-size:.8rem;background:#fff;border-radius:999px;padding:2px 12px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .qcard{
+    background:#fff;border-radius:14px;padding:22px 14px;text-align:center;
+    font-size:clamp(1.3rem,3.4vw,2.4rem);font-weight:800;color:#101828;margin-bottom:16px;
+    min-height:110px;display:flex;align-items:center;justify-content:center;
+  }
+  .panel.left .qcard{border:3px solid #d61f4c}
+  .panel.right .qcard{border:3px solid #0a7fb5}
+  .answers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ans{
+    border:none;border-radius:12px;padding:16px 8px;cursor:pointer;color:#fff;
+    font-size:clamp(1.05rem,2.6vw,1.8rem);font-weight:800;
+    box-shadow:0 6px 0 rgba(0,0,0,.18);transition:.12s;
+  }
+  .ans:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+  .ans:disabled{cursor:not-allowed;opacity:.95}
+  .panel.left .ans{background:#e11d48}
+  .panel.right .ans{background:#0a84c1}
+  .ans.good{background:#16a34a !important;animation:pop .4s}
+  .ans.bad{background:#64748b !important;animation:shake .4s}
+  @keyframes pop{50%{transform:scale(1.06)}}
+  @keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+  .done-note{
+    text-align:center;font-weight:800;font-size:1.2rem;color:#16a34a;
+    background:#fff;border-radius:14px;padding:26px 10px;border:3px dashed #16a34a;
+  }
+
+  /* ---------- OVERLAY ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(10,25,20,.66);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}
+  .overlay.show{display:flex}
+  .modal{background:#fff;border-radius:22px;max-width:560px;width:100%;padding:28px;text-align:center;color:#17233b;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .modal .big{font-size:3.4rem}
+  .modal h2{margin:8px 0 4px;font-size:1.6rem}
+  .modal p.sub{color:#5b6b7a;margin-bottom:14px}
+  .rules{text-align:left;background:#f4f8f5;border-radius:14px;padding:14px 18px;margin:14px 0;line-height:1.7;font-size:.95rem;color:#33475b}
+  .btn-main{border:none;border-radius:999px;padding:14px 34px;font-size:1.05rem;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#10a56b,#0fa36b)}
+  .btn-main:hover{transform:scale(1.05)}
+  .btn-ghost{border:2px solid #cbd5e1;background:#fff;color:#41546b;border-radius:999px;padding:12px 26px;font-weight:800;cursor:pointer;margin-left:8px}
+  .stats{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:16px 0}
+  .stat{background:#f4f8f5;border-radius:14px;padding:12px 18px;min-width:150px;font-weight:800}
+  .stat small{display:block;color:#5b6b7a;font-size:.78rem;margin-bottom:4px}
+  .stat.l{color:#d61f4c}.stat.r{color:#0a7fb5}
+  .setrow{display:flex;justify-content:center;gap:18px;margin:16px 0;font-weight:700;color:#33475b}
+  .setrow label{display:flex;gap:6px;align-items:center;cursor:pointer}
+  .confetti{position:fixed;top:-25px;font-size:1.3rem;z-index:300;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+  @media(max-width:760px){
+    .panels{grid-template-columns:1fr}
+    .panel.right{border-left:none;border-top:3px solid #fff}
+    .panel{min-height:auto}
+    .rope-area{height:100px}
+    .char{font-size:40px}
+    .knot{width:36px;height:36px}
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <header>
+    <button class="ibtn light" id="btnBack" title="Kembali ke menu">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h1>Tarik Tambang Jaringan Kelas XI TKJ · Mode Cepat · Kabel vs Nirkabel</h1>
+    <div class="hicons">
+      <button class="ibtn green" id="btnMusic" title="Musik">
+        <svg viewBox="0 0 24 24"><path d="M9 3v10.55A4 4 0 1 0 11 17V7h8V3z"/></svg>
+      </button>
+      <button class="ibtn green" id="btnSound" title="Efek suara">
+        <svg viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 0 1 0 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="ibtn light" id="btnFull" title="Layar penuh">
+        <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+      <button class="ibtn light" id="btnSet" title="Pengaturan">
+        <svg class="fill" viewBox="0 0 24 24"><path d="M19.14 12.94a7 7 0 0 0 .06-.94 7 7 0 0 0-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.7 8.48a.5.5 0 0 0 .12.64l2.03 1.58a7 7 0 0 0 0 1.88L2.82 14.16a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.34.61.22l2.39-.96c.49.38 1.03.7 1.62.94l.36 2.54c.04.24.25.42.5.42h3.8c.25 0 .46-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.24.1.5 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="rope-area" id="ropeArea">
+    <div class="rope"></div>
+    <div class="center-mark"></div>
+    <div class="knot" id="knot"></div>
+    <div class="char left">🧑‍🔧</div>
+    <div class="char right">🧑‍💻</div>
+    <div class="round-pill" id="progPill">🔌 0/10 • 📶 0/10</div>
+  </div>
+
+  <div class="panels">
+    <section class="panel left">
+      <h2>🔌 Tim Kabel <span class="pill" id="scoreL">0</span> <span class="pill" id="pillL">Soal 1/10</span></h2>
+      <div class="qcard" id="qL">-</div>
+      <div class="answers" id="ansL"></div>
+    </section>
+    <section class="panel right">
+      <h2>📶 Tim Nirkabel <span class="pill" id="scoreR">0</span> <span class="pill" id="pillR">Soal 1/10</span></h2>
+      <div class="qcard" id="qR">-</div>
+      <div class="answers" id="ansR"></div>
+    </section>
+  </div>
+</div>
+
+<!-- MENU AWAL -->
+<div class="overlay show" id="ovStart">
+  <div class="modal">
+    <div class="big">🪢⚡</div>
+    <h2>Tarik Tambang Jaringan — Mode Cepat</h2>
+    <p class="sub">Materi Jaringan Kabel &amp; Nirkabel · SMK Kelas XI TKJ</p>
+    <div class="rules">
+      ⚡ Begitu sebuah tim menjawab, <b>soal tim itu langsung berganti</b> — tidak menunggu tim lawan.<br>
+      🔌 <b>Tim Kabel</b> di kiri, 📶 <b>Tim Nirkabel</b> di kanan, bermain serentak dengan kecepatan masing-masing.<br>
+      ✅ Benar → tali tertarik ke sisi timmu. ❌ Salah → tali tertarik ke sisi lawan.<br>
+      🏆 Menang jika tali tertarik penuh, atau unggul saat semua soal kedua tim habis.
+    </div>
+    <button class="btn-main" id="btnStart">▶ Mulai Game</button>
+  </div>
+</div>
+
+<!-- PENGATURAN -->
+<div class="overlay" id="ovSet">
+  <div class="modal">
+    <div class="big">⚙️</div>
+    <h2>Pengaturan</h2>
+    <div class="setrow">
+      Soal per tim:
+      <label><input type="radio" name="rnd" value="5"> 5</label>
+      <label><input type="radio" name="rnd" value="10" checked> 10</label>
+    </div>
+    <button class="btn-main" id="btnSetClose">Simpan &amp; Tutup</button>
+    <button class="btn-ghost" id="btnSetRestart">🔄 Mulai Ulang</button>
+  </div>
+</div>
+
+<!-- HASIL -->
+<div class="overlay" id="ovEnd">
+  <div class="modal">
+    <div class="big" id="endEmoji">🏆</div>
+    <h2 id="endTitle">-</h2>
+    <div class="stats">
+      <div class="stat l"><small>🔌 Tim Kabel</small><span id="endL">0</span> benar</div>
+      <div class="stat r"><small>📶 Tim Nirkabel</small><span id="endR">0</span> benar</div>
+    </div>
+    <p class="sub" id="endMsg">-</p>
+    <button class="btn-main" id="btnAgain">🔄 Main Lagi</button>
+  </div>
+</div>
+
+<script>
+/* ============ BANK SOAL PER TIM ============ */
+const QS_L = [ /* Tim Kabel — materi jaringan kabel */
+  {q:"Konektor untuk kabel UTP?",o:["RJ-45","RJ-11","BNC","FC"],a:0},
+  {q:"Kabel pengirim data lewat cahaya?",o:["Fiber Optic","UTP","Coaxial","STP"],a:0},
+  {q:"Kabel tembaga berpilin berpasangan?",o:["Twisted Pair","Coaxial","Fiber","Serpentin"],a:0},
+  {q:"Topologi semua node ke switch pusat?",o:["Star","Bus","Ring","Mesh"],a:0},
+  {q:"Kecepatan Fast Ethernet?",o:["100 Mbps","10 Mbps","1 Gbps","10 Gbps"],a:0},
+  {q:"Konektor umum pada fiber optik?",o:["SC / LC","RJ-45","RJ-11","BNC"],a:0},
+  {q:"Kabel inti tembaga tunggal + shield?",o:["Coaxial","UTP","STP","Fiber"],a:0},
+  {q:"Alat untuk menguji kabel jaringan?",o:["LAN Tester","Barometer","Anemometer","Termometer"],a:0},
+  {q:"Kabel straight: PC dihubungkan ke?",o:["Switch","PC lain","Hub ke Hub","Switch ke Switch"],a:0},
+  {q:"Pasangan kawat pada UTP Cat5e?",o:["4 pasang","2 pasang","6 pasang","8 pasang"],a:0}
+];
+const QS_R = [ /* Tim Nirkabel — materi jaringan nirkabel */
+  {q:"Standar IEEE untuk Wi-Fi?",o:["802.11","802.3","802.15","802.5"],a:0},
+  {q:"Jaringan nirkabel jarak ±10 meter?",o:["Bluetooth","Ethernet","Fiber","LAN Kabel"],a:0},
+  {q:"Perangkat pemancar sinyal Wi-Fi?",o:["Access Point","Switch","Hub","LAN Tester"],a:0},
+  {q:"Mode Wi-Fi tanpa Access Point?",o:["Ad-hoc","Infrastructure","Client","Bridge"],a:0},
+  {q:"Teknologi tap untuk pembayaran?",o:["NFC","Wi-Fi","LTE","Satelit"],a:0},
+  {q:"Wi-Fi 5 GHz vs 2,4 GHz: kecepatan?",o:["Lebih tinggi","Lebih rendah","Sama saja","Tidak ada"],a:0},
+  {q:"Satelit & gelombang mikro = media?",o:["Unguided","Guided","Kabel","Tembaga"],a:0},
+  {q:"Keamanan Wi-Fi terkuat saat ini?",o:["WPA3","WEP","WPA","Open"],a:0},
+  {q:"Contoh pemakaian infrared?",o:["Remote TV","Radio FM","GPS","Microwave"],a:0},
+  {q:"Nirkabel area luas (WAN)?",o:["Seluler 4G","Bluetooth","NFC","Infrared"],a:0}
+];
+
+const WIN_OFFSET = 10;      // simpul mencapai ujung = menang
+const NEXT_DELAY = 900;     // jeda feedback sebelum soal tim itu berganti (ms)
+
+let totalPerTeam = 10;
+let idxL=0, idxR=0;
+let lockL=false, lockR=false;
+let finL=false, finR=false;
+let curL=0, curR=0;
+let offset=0, scoreL=0, scoreR=0;
+let playing=false;
+let tL=null, tR=null, tEnd=null;
+
+const $ = id => document.getElementById(id);
+
+/* ============ AUDIO ============ */
+let AC=null, musicOn=true, soundOn=true, musicTimer=null, mStep=0;
+const MELODY=[392,440,494,523,587,659,587,523,494,440];
+function ctx(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); return AC; }
+function tone(f,d,type="sine",delay=0,vol=.14){
+  if(!soundOn) return;
+  try{
+    const c=ctx(),o=c.createOscillator(),g=c.createGain();
+    o.type=type;o.frequency.value=f;o.connect(g);g.connect(c.destination);
+    g.gain.setValueAtTime(vol,c.currentTime+delay);
+    g.gain.exponentialRampToValueAtTime(.001,c.currentTime+delay+d);
+    o.start(c.currentTime+delay);o.stop(c.currentTime+delay+d);
+  }catch(e){}
+}
+const sfxGood=()=>{tone(660,.12);tone(880,.18,"sine",.12);};
+const sfxBad =()=>{tone(220,.18,"sawtooth");tone(160,.24,"sawtooth",.15);};
+const sfxWin =()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.25,"triangle",i*.18));};
+function startMusic(){
+  stopMusic();
+  musicTimer=setInterval(()=>{ if(musicOn) tone(MELODY[mStep++%MELODY.length],.4,"triangle",0,.035); },520);
+}
+function stopMusic(){ if(musicTimer){clearInterval(musicTimer);musicTimer=null;} }
+
+/* ============ UTIL ============ */
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}
+  return b;
+}
+function updatePill(){
+  $("progPill").textContent =
+    `🔌 ${Math.min(idxL,totalPerTeam)}/${totalPerTeam} • 📶 ${Math.min(idxR,totalPerTeam)}/${totalPerTeam}`;
+}
+function updateKnot(){
+  const pos=Math.min(92,Math.max(8,50+offset*4));
+  $("knot").style.left=pos+"%";
+}
+function pullAnim(toLeft){
+  const a=$("ropeArea");
+  a.classList.remove("pull-l","pull-r");
+  void a.offsetWidth;
+  a.classList.add(toLeft?"pull-l":"pull-r");
+}
+
+/* ============ MUAT SOAL PER SISI (INDEPENDEN) ============ */
+function loadSide(side){
+  const list = side==="L"?QS_L:QS_R;
+  const idx  = side==="L"?idxL:idxR;
+  const data = list[idx];
+  const box  = $(side==="L"?"ansL":"ansR");
+
+  $(side==="L"?"qL":"qR").textContent = data.q;
+  $(side==="L"?"pillL":"pillR").textContent = `Soal ${idx+1}/${totalPerTeam}`;
+  box.innerHTML="";
+
+  const opts = shuffle(data.o.map((t,i)=>({t,ok:i===data.a})));
+  const correctIdx = opts.findIndex(o=>o.ok);
+  if(side==="L") curL=correctIdx; else curR=correctIdx;
+
+  opts.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="ans"; b.textContent=o.t;
+    b.onclick=()=>answer(side,i);
+    box.appendChild(b);
+  });
+  updatePill();
+}
+
+function showFinishedSide(side){
+  $(side==="L"?"qL":"qR").textContent = "🎉 Selesai!";
+  $(side==="L"?"pillL":"pillR").textContent = `${totalPerTeam}/${totalPerTeam}`;
+  const box=$(side==="L"?"ansL":"ansR");
+  box.innerHTML=`<div class="done-note" style="grid-column:1/-1">✔ Semua soal tim ini selesai.<br>Menunggu lawan...</div>`;
+  updatePill();
+}
+
+/* ============ JAWAB ============ */
+function answer(side, i){
+  if(!playing) return;
+  if(side==="L" && (lockL||finL)) return;
+  if(side==="R" && (lockR||finR)) return;
+
+  const correctIdx = side==="L"?curL:curR;
+  const box=$(side==="L"?"ansL":"ansR");
+  const btns=[...box.children];
+  btns.forEach(b=>b.disabled=true);
+
+  const isCorrect = i===correctIdx;
+  btns[correctIdx].classList.add("good");
+  if(!isCorrect) btns[i].classList.add("bad");
+
+  if(side==="L"){
+    lockL=true;
+    if(isCorrect){scoreL++;offset--;}else{offset++;}
+    pullAnim(isCorrect);
+  }else{
+    lockR=true;
+    if(isCorrect){scoreR++;offset++;}else{offset--;}
+    pullAnim(!isCorrect);
+  }
+
+  isCorrect?sfxGood():sfxBad();
+  $("scoreL").textContent=scoreL;
+  $("scoreR").textContent=scoreR;
+  updateKnot();
+
+  /* menang karena tali tertarik penuh */
+  if(Math.abs(offset)>=WIN_OFFSET){
+    playing=false;
+    clearTimeout(tL);clearTimeout(tR);
+    tEnd=setTimeout(()=>finish(true),900);
+    return;
+  }
+
+  /* soal tim ini langsung berganti tanpa menunggu tim lain */
+  const timer=setTimeout(()=>{
+    if(side==="L"){
+      idxL++;
+      if(idxL>=totalPerTeam){ finL=true; showFinishedSide("L"); }
+      else { loadSide("L"); lockL=false; }
+    }else{
+      idxR++;
+      if(idxR>=totalPerTeam){ finR=true; showFinishedSide("R"); }
+      else { loadSide("R"); lockR=false; }
+    }
+    if(finL&&finR){ playing=false; tEnd=setTimeout(()=>finish(false),700); }
+  },NEXT_DELAY);
+
+  if(side==="L") tL=timer; else tR=timer;
+}
+
+/* ============ AKHIR GAME ============ */
+function finish(early){
+  playing=false;
+  let emoji,title,msg;
+  if(offset<0){
+    emoji="🏆"; title="Tim Kabel Menang!";
+    msg=early?"Tali tertarik penuh ke sisi kiri!":"Unggul saat semua soal selesai!";
+    celebrate(90); sfxWin();
+  }else if(offset>0){
+    emoji="🏆"; title="Tim Nirkabel Menang!";
+    msg=early?"Tali tertarik penuh ke sisi kanan!":"Unggul saat semua soal selesai!";
+    celebrate(90); sfxWin();
+  }else{
+    emoji="🤝"; title="Seri!";
+    msg="Kekuatan kedua tim seimbang, simpul kembali ke tengah.";
+  }
+  $("endEmoji").textContent=emoji;
+  $("endTitle").textContent=title;
+  $("endMsg").textContent=msg;
+  $("endL").textContent=scoreL;
+  $("endR").textContent=scoreR;
+  $("ovEnd").classList.add("show");
+}
+
+function resetGame(){
+  clearTimeout(tL);clearTimeout(tR);clearTimeout(tEnd);
+  idxL=0;idxR=0;lockL=false;lockR=false;finL=false;finR=false;
+  offset=0;scoreL=0;scoreR=0;
+  $("scoreL").textContent=0;$("scoreR").textContent=0;
+  updateKnot();
+  loadSide("L"); loadSide("R");
+  playing=true;
+}
+
+function celebrate(n){
+  const ic=["🎉","✨","🎊","⭐","🏆"];
+  for(let i=0;i<n;i++){
+    const s=document.createElement("span");
+    s.className="confetti";
+    s.textContent=ic[Math.floor(Math.random()*ic.length)];
+    s.style.left=Math.random()*100+"vw";
+    s.style.animationDuration=(2+Math.random()*2.5)+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),5000);
+  }
+}
+
+/* ============ TOMBOL ============ */
+$("btnStart").onclick=()=>{ ctx().resume?.(); $("ovStart").classList.remove("show"); resetGame(); if(musicOn) startMusic(); };
+$("btnBack").onclick=()=>{ playing=false; clearTimeout(tL);clearTimeout(tR);clearTimeout(tEnd); $("ovStart").classList.add("show"); };
+$("btnAgain").onclick=()=>{ $("ovEnd").classList.remove("show"); resetGame(); };
+$("btnMusic").onclick=e=>{ musicOn=!musicOn; e.currentTarget.classList.toggle("off",!musicOn); if(musicOn){ctx().resume?.();startMusic();} };
+$("btnSound").onclick=e=>{ soundOn=!soundOn; e.currentTarget.classList.toggle("off",!soundOn); };
+$("btnFull").onclick=()=>{ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); };
+$("btnSet").onclick=()=>{ playing=false; clearTimeout(tL);clearTimeout(tR);clearTimeout(tEnd); $("ovSet").classList.add("show"); };
+$("btnSetClose").onclick=()=>{ $("ovSet").classList.remove("show"); if(!$("ovEnd").classList.contains("show") && !$("ovStart").classList.contains("show")) playing=true; };
+$("btnSetRestart").onclick=()=>{ $("ovSet").classList.remove("show"); $("ovEnd").classList.remove("show"); resetGame(); };
+document.querySelectorAll('input[name="rnd"]').forEach(r=>{ r.onchange=()=>{ totalPerTeam=+r.value; }; });
+</script>
+</body>
+</html>
